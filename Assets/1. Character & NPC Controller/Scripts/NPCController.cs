@@ -21,7 +21,41 @@ public class NPCController : MonoBehaviour
         if (agent != null) { agentSpeed = agent.speed; }
         player = GameObject.FindGameObjectWithTag("Player").transform;
         index = Random.Range(0, waypoints.Length);
+
+        InvokeRepeating("Tick", 0, 0.5f);
+
+        if(waypoints.Length > 0)
+        {
+            InvokeRepeating("Patrol", Random.Range(0, patrolTime), patrolTime);
+        }
     }
 
+    void Update()
+    {
+        animator.SetFloat("Speed", agent.velocity.magnitude);
+    }
+
+    void Patrol()
+    {
+        index = index == waypoints.Length - 1 ? 0 : index + 1;
+    }
+
+    void Tick()
+    {
+        agent.destination = waypoints[index].position;
+        agent.speed = agentSpeed / 2;
+
+        if(player != null && Vector3.Distance(transform.position, player.position) < aggroRange)
+        {
+            agent.destination = player.position;
+            agent.speed = agentSpeed;
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, aggroRange);
+    }
 
 }
