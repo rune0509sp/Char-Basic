@@ -11,8 +11,25 @@ public class MouseManager : MonoBehaviour
 
     public EventVector3 onClickEnvironment;
 
+    private bool _useDefaultCursor = false;
+
+    private void Start()
+    {
+        GameManager.Instance.OnGameStateChanged.AddListener(HandleGameStateChanged);
+    }
+
+    void HandleGameStateChanged(GameManager.GameState currentState, GameManager.GameState previousState)
+    {
+        _useDefaultCursor = currentState == GameManager.GameState.PAUSED;
+    }
+
     void Update()
     {
+        if(_useDefaultCursor)
+        {
+            Cursor.SetCursor(pointer, new Vector2(16, 16), CursorMode.Auto);
+            return;
+        }
         // Raycast into scene
         RaycastHit hit;
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 50, clickableLayer.value))
